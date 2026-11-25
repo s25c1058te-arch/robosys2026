@@ -72,18 +72,23 @@ def calculate_productivity(work_hours, characters):
 
 def main():
 
-    # 作業時間だけを入力する
-    try:
-        work_hours = float(
-            input("今日の作業時間を入力してください（時間）：")
+    # 作業時間をコマンドライン引数から受け取る
+    if len(sys.argv) != 2:
+        print(
+            "使い方: ./robosys1.py 作業時間（時間）",
+            file=sys.stderr
         )
+        return 1
+
+    try:
+        work_hours = float(sys.argv[1])
 
         if not math.isfinite(work_hours) or work_hours <= 0:
             raise ValueError
 
-    except (ValueError, EOFError):
+    except ValueError:
         print(
-            "入力エラー：0より大きい数値を入力してください。",
+            "エラー：作業時間は0より大きい数値にしてください。",
             file=sys.stderr
         )
         return 1
@@ -138,14 +143,9 @@ def main():
         characters
     )
 
-    # 結果を表示する
-    print("\n--- 今日のターミナル作業結果 ---")
-    print(f"作業日：{today}")
-    print(f"作業時間：{work_hours:g}時間")
-    print(f"入力文字数：{characters}文字")
+    # 標準出力には計算結果だけを出す
     print(
-        f"1時間当たりの入力文字数："
-        f"{productivity:.1f}文字/時間"
+        f"{today},{work_hours:g},{characters},{productivity:.1f}"
     )
 
     if characters == 0:
@@ -159,3 +159,4 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+    

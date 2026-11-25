@@ -98,8 +98,8 @@ class TestRobosys1(unittest.TestCase):
         with self.assertRaises(ValueError):
             calculate_productivity(-1, 100)
 
-    # ⑧ 標準入力と標準出力を確認する
-    def test_standard_input_output(self):
+    # ⑧ 引数と標準出力を確認する
+    def test_argument_output(self):
 
         with tempfile.TemporaryDirectory() as temp_dir:
 
@@ -116,22 +116,36 @@ class TestRobosys1(unittest.TestCase):
             )
 
             result = subprocess.run(
-                [sys.executable, str(SCRIPT)],
-                input="2\n",
+                [sys.executable, str(SCRIPT), "2"],
                 text=True,
                 capture_output=True,
+                stdin=subprocess.DEVNULL,
                 env=env
             )
 
             self.assertEqual(result.returncode, 0)
-            self.assertIn("作業時間：2時間", result.stdout)
-            self.assertIn("入力文字数：2文字", result.stdout)
 
-            self.assertIn(
-                "1時間当たりの入力文字数：1.0文字/時間",
-                result.stdout
+            expected = f"{date.today()},2,2,1.0"
+
+            self.assertEqual(
+                result.stdout.strip(),
+                expected
             )
 
+            self.assertEqual(result.stderr, "")
+
+    # ⑨ 0時間を指定したときのエラーを確認する
+    def test_invalid_hours(self):
+
+        result = subprocess.run(
+            [sys.executable, str(SCRIPT), "0"],
+            text=True,
+            capture_output=True
+        )
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(result.stdout, "")
+        self.assertIn("エラー", result.stderr)
 
 if __name__ == "__main__":
     unittest.main()
